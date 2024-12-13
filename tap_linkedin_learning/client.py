@@ -32,9 +32,7 @@ class MyPaginator(BaseHATEOASPaginator):
         if end_time < start_time:
             return None
         else:
-            #self.start_time += 604800000
-            self.start_time += 86400000
-            #self.start_time += 43200000
+            self.start_time += 604800000
 
             return self.start_time
 
@@ -71,7 +69,11 @@ class LinkedinLearningStream(RESTStream):
     # Update this value if necessary or override `parse_response`.
     records_jsonpath = "$[elements][*]"
 
-    start_time = 1000000
+    # @property
+    # def start_time(self) -> str:
+    #     return self.config.get("start_time")
+
+
     # Update this value if necessary or override `get_new_paginator`.
     #next_page_token_jsonpath = "$.next_page"  # noqa: S105
 
@@ -141,20 +143,17 @@ class LinkedinLearningStream(RESTStream):
 
 
         params.update(parse_qsl(query_string))
-        self.logger.info(f'next page token{next_page_token}')
+        if next_page_token:
+            self.logger.info(f'next page token: {datetime.utcfromtimestamp(next_page_token/1000.0)}')
         replicationkey = self.get_starting_replication_key_value(context)
-        self.logger.info(f'replicationkey: {replicationkey}')
+        if replicationkey:
+            self.logger.info(f'replicationkey: {datetime.utcfromtimestamp(replicationkey/1000.0)}')
 
         if next_page_token:
             params['startedAt'] = next_page_token
         else:
             if replicationkey:
                 params['startedAt'] = replicationkey
-        start_time = params['startedAt']
-
-
-        current_day_epoch = datetime.now().timestamp() * 1000
-        self.logger.info(f'Current Day Epoch: {current_day_epoch}')
         self.logger.info(f'PARAMS:{params}')
         return params
 

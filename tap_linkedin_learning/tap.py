@@ -56,12 +56,7 @@ class TapLinkedinLearning(Tap):
             th.StringType,
             required=True,
             description="The token to authenticate against the API service",
-        ),
-#        th.Property(
-#            "start_date",
-#            th.DateTimeType,
-#            description="The earliest record date to sync",
-#        ),
+        )
     ).to_dict()
 
     def discover_streams(self) -> list[streams.LinkedinLearningStream]:
