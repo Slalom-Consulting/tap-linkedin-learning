@@ -81,7 +81,7 @@ class LinkedinLearningStream(RESTStream):
     def url_base(self) -> str:
         """Return the API URL root, configurable via tap settings."""
         # TODO: hardcode a value here, or retrieve it from self.config
-        return "https://api.linkedin.com/"
+        return self.config.get("url_base")
 
     @cached_property
     def authenticator(self) -> Auth:
