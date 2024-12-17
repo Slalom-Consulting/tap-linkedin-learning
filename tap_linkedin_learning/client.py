@@ -49,16 +49,20 @@ class MyPaginator(BaseHATEOASPaginator):
             return None
 
     def get_next(self,response):
+        result = {}
         next_url = self.get_next_url(response)
+        # there's no next_url, so we need to get increment the start time
         if next_url == None:
             new_start = self.get_next_start_time(self.start_time)
             if new_start == None:
                 return None
             else:
-                return new_start 
+                result['new_start'] = new_start
+                return result 
         else:
             self.current_url = next_url
-            return next_url
+            result['next_url'] = next_url
+            return result
         
 
         #return data['paging']['links'][0]['href']
@@ -141,20 +145,27 @@ class LinkedinLearningStream(RESTStream):
         else:
             query_string = None
 
-
         params.update(parse_qsl(query_string))
-        if next_page_token:
-            self.logger.info(f'next page token: {datetime.utcfromtimestamp(next_page_token/1000.0)}')
         replicationkey = self.get_starting_replication_key_value(context)
         if replicationkey:
             self.logger.info(f'replicationkey: {datetime.utcfromtimestamp(replicationkey/1000.0)}')
 
         if next_page_token:
-            params['startedAt'] = next_page_token
+            self.logger.info(f'next page token: {next_page_token}')
+            if 'new_start' in next_page_token:
+                next_page_token = next_page_token['new_start']
+                self.logger.info(f'next page token: {datetime.utcfromtimestamp(next_page_token/1000.0)}')
+                params['startedAt'] = next_page_token
+            elif 'next_url' in next_page_token:
+                next_page_token = next_page_token['next_url']
+                query_string = next_page_token.split('?')
+                self.logger.info(f'next page token: {query_string[1]}')
+                params.update(parse_qsl(query_string[1]))
         else:
             if replicationkey:
                 params['startedAt'] = replicationkey
         self.logger.info(f'PARAMS:{params}')
+
         return params
 
     def get_start_time(self, context):
@@ -262,5 +273,6 @@ class LinkedinLearningStream(RESTStream):
         Returns:
             The updated record dictionary, or ``None`` to skip the record.
         """
-        # TODO: Delete this method if not needed.
+        row['profile_urn_id'] = row['learnerDetails']['entity']['profileUrn']
+        row['content_urn_id'] = row['contentDetails']['contentUrn']
         return row

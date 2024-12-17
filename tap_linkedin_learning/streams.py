@@ -16,11 +16,13 @@ class LearnerDetail(LinkedinLearningStream):
     name = "LearnerDetail"
     #path = "v2/learningActivityReports?aggregationCriteria.primary=INDIVIDUAL&aggregationCriteria.secondary=CONTENT&q=criteria&start=0&count=500&contentSource=LINKEDIN_LEARNING&assetType=COURSE&startedAt=1702699900247&timeOffset.duration=14&timeOffset.unit=DAY"
     path = "v2/learningActivityReports"
-    #primary_keys: t.ClassVar[list[str]] = ["profileUrn","contentUrn"]
+    primary_keys: t.ClassVar[list[str]] = ["profile_urn_id","content_urn_id"]
     replication_key = "latestDataAt"
     # Optionally, you may also use `schema_filepath` in place of `schema`:
     # schema_filepath = SCHEMAS_DIR / "users.json"  # noqa: ERA001
     schema = th.PropertiesList(
+        th.Property("profile_urn_id", th.StringType),
+        th.Property("content_urn_id", th.StringType),
         th.Property("latestDataAt", th.IntegerType),
         th.Property("learnerDetails",
                     th.ObjectType(
